@@ -1,5 +1,6 @@
 package com.example.p1di.core;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,21 +9,29 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.p1di.R;
 import com.example.p1di.ui.adapter.MiAdaptadorRecView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,6 +78,16 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
         ArrayList<Integer> listaPosiciones = new ArrayList<>();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        TextView title = new TextView(this);
+        title.setText(R.string.tareasVencidas);
+        title.setBackgroundColor(getResources().getColor(R.color.primaryLightColor));
+        title.setTextSize(25);
+        title.setPadding(25,25,25,25);
+        title.setTextColor(getResources().getColor(R.color.primaryTextColor));
+        title.setGravity(Gravity.CENTER);
+        builder.setCustomTitle(title);
+
         View customLayout = getLayoutInflater().inflate(R.layout.borrar_layout, null);
         builder.setView(customLayout);
 
@@ -117,6 +136,11 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
                             itemList.remove(i);
                             mAdapter.notifyDataSetChanged();
                         }
+//                        for(int j=0; j < itemList.size() ; j++){
+//                            if(valores.contains(itemList.get(j))){
+//
+//                            }
+//                        }
                     }
                 });
                 builder1.setNegativeButton(R.string.alert_cancelar, null);
@@ -124,8 +148,9 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
             }
         });
         builder.setNegativeButton(R.string.alert_cancelar,null);
-        builder.create().show();
-
+        if(!itemList.isEmpty()) {
+            builder.create().show();
+        }
     }
 
     // Definir que hacer cuando se hace click en un item
@@ -138,7 +163,16 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View customLayout = getLayoutInflater().inflate(R.layout.add_task, null);
         builder.setView(customLayout);
-        builder.setTitle(R.string.addTarea);
+
+        TextView title = new TextView(this);
+        title.setText(R.string.addTarea);
+        title.setBackgroundColor(getResources().getColor(R.color.primaryLightColor));
+        title.setTextSize(25);
+        title.setPadding(25,25,25,25);
+        title.setTextColor(getResources().getColor(R.color.primaryTextColor));
+        title.setGravity(Gravity.CENTER);
+        builder.setCustomTitle(title);
+
         tareaEd = customLayout.findViewById(R.id.tareaEditText);
         dateEd = customLayout.findViewById(R.id.dateEditText);
         dateEd.setOnClickListener(new View.OnClickListener() {
@@ -154,23 +188,39 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
         builder.setPositiveButton(R.string.positiveButtonTarea, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Tarea tarea = new Tarea(tareaEd.getText().toString(),fechaLimite);
-                listaTareas.add(tarea);
-                String resumen = patronFecha(tarea.getFechaLimite()) +"  " +tarea.getTitulo();
-                valores.add(resumen);
-                mAdapter.notifyDataSetChanged();
+                if(tareaEd.getText().toString().isEmpty() || dateEd.getText().toString().isEmpty()){
+                    Toast toast = Toast.makeText(MainActivity.this,R.string.toastAñadir, Toast.LENGTH_LONG);
+                    toast.show();
+                }else{
+                    Tarea tarea = new Tarea(tareaEd.getText().toString(),fechaLimite);
+                    listaTareas.add(tarea);
+                    String resumen = patronFecha(tarea.getFechaLimite()) +"  " +tarea.getTitulo();
+                    valores.add(resumen);
+                    mAdapter.notifyDataSetChanged();
+                }
             }
         });
 
         builder.setNegativeButton(R.string.negativeButtonTarea,null);
         builder.create().show();
+
     }
 
     public void modificar(int position){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View customLayout = getLayoutInflater().inflate(R.layout.add_task, null);
         builder.setView(customLayout);
-        builder.setTitle(R.string.modificar);
+
+        TextView title = new TextView(this);
+        title.setText(R.string.modificar);
+        title.setBackgroundColor(getResources().getColor(R.color.primaryLightColor));
+        title.setTextSize(25);
+        title.setPadding(25,25,25,25);
+        title.setTextColor(getResources().getColor(R.color.primaryTextColor));
+        title.setGravity(Gravity.CENTER);
+        builder.setCustomTitle(title);
+
+
         tareaEd = customLayout.findViewById(R.id.tareaEditText);
         tareaEd.setHint(listaTareas.get(position).getTitulo());
         dateEd = customLayout.findViewById(R.id.dateEditText);
@@ -258,6 +308,17 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
 
             case R.id.buttonDelMenu :
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+
+                TextView title = new TextView(this);
+                title.setText(R.string.eliminarElementos);
+                title.setBackgroundColor(getResources().getColor(R.color.primaryLightColor));
+                title.setTextSize(25);
+                title.setPadding(25,25,25,25);
+                title.setTextColor(getResources().getColor(R.color.primaryTextColor));
+                title.setGravity(Gravity.CENTER);
+                builder.setCustomTitle(title);
+
                 final ArrayList<Integer> itemsSelected = new ArrayList<>();
                 CharSequence[] cs = valores.toArray(new CharSequence[valores.size()]);
                 builder.setMultiChoiceItems(cs, null, new DialogInterface.OnMultiChoiceClickListener() {
@@ -270,14 +331,26 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
                         }
                     }
                 });
+
                 builder.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        for (int i :itemsSelected){
-                            valores.remove(i);
-                            listaTareas.remove(i);
-                            mAdapter.notifyDataSetChanged();
-                        }
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+                        View confirmationLayout = getLayoutInflater().inflate(R.layout.confirmacion, null);
+                        builder1.setMessage(R.string.confirmacion);
+                        builder1.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                for (int i :itemsSelected){
+                                    valores.remove(i);
+                                    listaTareas.remove(i);
+                                    mAdapter.notifyDataSetChanged();
+
+                                }
+                            }
+                        });
+                        builder1.setNegativeButton(R.string.alert_cancelar, null);
+                        builder1.create().show();
                     }
                 });
                 builder.setNegativeButton(R.string.alert_cancelar,null);

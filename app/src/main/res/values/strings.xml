@@ -17,4 +17,7 @@
     <string name="texto_prueba">Texto prueba</string>
     <string name="confirmacion">¿Eliminar los elementos seleccionados?</string>
     <string name="aceptarBorrar">Aceptar</string>
+    <string name="eliminarElementos">Eliminar elementos</string>
+    <string name="tareasVencidas">Tareas vencidas</string>
+    <string name="toastAñadir">Rellena los dos campos</string>
 </resources>
