@@ -20,4 +20,5 @@
     <string name="eliminarElementos">Eliminar elementos</string>
     <string name="tareasVencidas">Tareas vencidas</string>
     <string name="toastAñadir">Rellena los dos campos</string>
+    <string name="sinCambios">No se han realizado cambios</string>
 </resources>

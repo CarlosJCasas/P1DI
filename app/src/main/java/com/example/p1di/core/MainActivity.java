@@ -1,37 +1,26 @@
 package com.example.p1di.core;
 
-import androidx.annotation.ColorRes;
+import android.app.DatePickerDialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.DatePickerDialog;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.p1di.R;
 import com.example.p1di.ui.adapter.MiAdaptadorRecView;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,34 +30,28 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MiAdaptadorRecView.ItemClickListener{
 
-    private RecyclerView recyclerView;
     private MiAdaptadorRecView mAdapter;
     List<Tarea> listaTareas = new ArrayList<>();
     List<String> valores = new ArrayList<>();
     EditText dateEd, tareaEd;
     Date fechaLimite;
-    int posicion;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
 
-        recyclerView = findViewById(R.id.myRecyclerView);
+        RecyclerView recyclerView = findViewById(R.id.myRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setClickable(true);
         mAdapter = new MiAdaptadorRecView(this,valores);
-        mAdapter.setClickListener(this::onItemClick);
+        mAdapter.setClickListener(this);
         recyclerView.setAdapter(mAdapter);
 
 
 
-        FloatingActionButton floatActionButtn = (FloatingActionButton) findViewById(R.id.floatingActionButton);
-        floatActionButtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            addTask();
-            }
-        });
+        FloatingActionButton floatActionButtn = findViewById(R.id.floatingActionButton);
+        floatActionButtn.setOnClickListener(v -> addTask());
     }
 
     @Override
@@ -111,41 +94,34 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
 
         ArrayList<Integer> itemsSelected = new ArrayList<>();
         CharSequence[] cs = itemList.toArray(new CharSequence[itemList.size()]);
-        builder.setMultiChoiceItems(cs, null, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                if(isChecked){
-                    itemsSelected.add(which);
-                }else if (itemsSelected.contains(which)){
-                    itemsSelected.remove(Integer.valueOf(which));
-                }
+        builder.setMultiChoiceItems(cs, null, (dialog, which, isChecked) -> {
+            if(isChecked){
+                itemsSelected.add(which);
+            }else if (itemsSelected.contains(which)){
+                itemsSelected.remove(Integer.valueOf(which));
             }
         });
-        builder.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
-                View confirmationLayout = getLayoutInflater().inflate(R.layout.confirmacion, null);
-                builder1.setMessage(R.string.confirmacion);
-                builder1.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        for (int i :itemsSelected){
-                            valores.remove(i);
-                            listaTareas.remove(i);
-                            itemList.remove(i);
-                            mAdapter.notifyDataSetChanged();
-                        }
+        builder.setPositiveButton(R.string.alert_eliminar, (dialog, which) -> {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+            builder1.setMessage(R.string.confirmacion);
+            builder1.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    for (int i :itemsSelected){
+                        valores.remove(i);
+                        listaTareas.remove(i);
+                        itemList.remove(i);
+                        mAdapter.notifyDataSetChanged();
+                    }
 //                        for(int j=0; j < itemList.size() ; j++){
 //                            if(valores.contains(itemList.get(j))){
 //
 //                            }
 //                        }
-                    }
-                });
-                builder1.setNegativeButton(R.string.alert_cancelar, null);
-                builder1.create().show();
-            }
+                }
+            });
+            builder1.setNegativeButton(R.string.alert_cancelar, null);
+            builder1.create().show();
         });
         builder.setNegativeButton(R.string.alert_cancelar,null);
         if(!itemList.isEmpty()) {
@@ -175,29 +151,23 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
 
         tareaEd = customLayout.findViewById(R.id.tareaEditText);
         dateEd = customLayout.findViewById(R.id.dateEditText);
-        dateEd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.dateEditText:
-                        showDatePickerDialog();
-                        break;
-                }
+        dateEd.setOnClickListener(v -> {
+            switch (v.getId()) {
+                case R.id.dateEditText:
+                    showDatePickerDialog();
+                    break;
             }
         });
-        builder.setPositiveButton(R.string.positiveButtonTarea, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(tareaEd.getText().toString().isEmpty() || dateEd.getText().toString().isEmpty()){
-                    Toast toast = Toast.makeText(MainActivity.this,R.string.toastAñadir, Toast.LENGTH_LONG);
-                    toast.show();
-                }else{
-                    Tarea tarea = new Tarea(tareaEd.getText().toString(),fechaLimite);
-                    listaTareas.add(tarea);
-                    String resumen = patronFecha(tarea.getFechaLimite()) +"  " +tarea.getTitulo();
-                    valores.add(resumen);
-                    mAdapter.notifyDataSetChanged();
-                }
+        builder.setPositiveButton(R.string.positiveButtonTarea, (dialog, which) -> {
+            if(tareaEd.getText().toString().isEmpty() || dateEd.getText().toString().isEmpty()){
+                Toast toast = Toast.makeText(MainActivity.this,R.string.toastAñadir, Toast.LENGTH_LONG);
+                toast.show();
+            }else{
+                Tarea tarea = new Tarea(tareaEd.getText().toString(),fechaLimite);
+                listaTareas.add(tarea);
+                String resumen = patronFecha(tarea.getFechaLimite()) +"  " +tarea.getTitulo();
+                valores.add(resumen);
+                mAdapter.notifyDataSetChanged();
             }
         });
 
@@ -225,30 +195,47 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
         tareaEd.setHint(listaTareas.get(position).getTitulo());
         dateEd = customLayout.findViewById(R.id.dateEditText);
         dateEd.setHint(patronFecha(listaTareas.get(position).getFechaLimite()));
-        dateEd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.dateEditText:
-                        showDatePickerDialog();
-                        break;
-                }
+        dateEd.setOnClickListener(v -> {
+            switch (v.getId()) {
+                case R.id.dateEditText:
+                    showDatePickerDialog();
+                    break;
             }
         });
-        builder.setPositiveButton(R.string.positiveButtonModificar, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //Controlar que no esten vacias o que si está vacía tenga los mismos datos
-                Tarea tarea = new Tarea(tareaEd.getText().toString(),fechaLimite);
+        builder.setPositiveButton(R.string.positiveButtonModificar, (dialog, which) -> {
+            //Controlar que no esten vacias o que si está vacía tenga los mismos datos
+            if(tareaEd.getText().toString().isEmpty()){
+                if(dateEd.getText().toString().isEmpty()){
+                    Toast toast = Toast.makeText(MainActivity.this,R.string.sinCambios, Toast.LENGTH_LONG);
+                    toast.show();
+                }else {
+                    listaTareas.get(position).setFechaLimite(fechaLimite);
+                    Tarea tarea = listaTareas.get(position);
+                    String resumen = patronFecha(tarea.getFechaLimite()) + "  " + tarea.getTitulo();
+                    valores.remove(position);
+                    valores.add(position, resumen);
+                    mAdapter.notifyDataSetChanged();
+                }
+
+            }else if(dateEd.getText().toString().isEmpty()){
+                    listaTareas.get(position).setTitulo(tareaEd.getText().toString());
+                    Tarea tarea = listaTareas.get(position);
+                    String resumen = patronFecha(tarea.getFechaLimite()) + "  " + tarea.getTitulo();
+                    valores.remove(position);
+                    valores.add(position, resumen);
+                    mAdapter.notifyDataSetChanged();
+
+            }else{
+                Tarea tarea = new Tarea(tareaEd.getText().toString(), fechaLimite);
                 listaTareas.remove(position);
-                listaTareas.add(position,tarea);
+                listaTareas.add(position, tarea);
 
                 listaTareas.get(position).setTitulo(tareaEd.getText().toString());
                 listaTareas.get(position).setFechaLimite(fechaLimite);
 
-                String resumen = patronFecha(tarea.getFechaLimite())+"  "+tarea.getTitulo();
+                String resumen = patronFecha(tarea.getFechaLimite()) + "  " + tarea.getTitulo();
                 valores.remove(position);
-                valores.add(position,resumen);
+                valores.add(position, resumen);
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -262,17 +249,14 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
     day = calendario.get(Calendar.DAY_OF_MONTH);
     month = calendario.get(Calendar.MONTH);
     year = calendario.get(Calendar.YEAR);
-    DatePickerDialog datePickDiag = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-            calendario.set(Calendar.DAY_OF_MONTH,dayOfMonth);
-            calendario.set(Calendar.MONTH,month);
-            calendario.set(Calendar.YEAR,year);
+    DatePickerDialog datePickDiag = new DatePickerDialog(MainActivity.this, (view, year1, month1, dayOfMonth) -> {
+        calendario.set(Calendar.DAY_OF_MONTH,dayOfMonth);
+        calendario.set(Calendar.MONTH, month1);
+        calendario.set(Calendar.YEAR, year1);
 
-            String selectedDate = dayOfMonth+"/"+month+"/"+year;
-            fechaLimite = calendario.getTime();
-            dateEd.setText(selectedDate);
-        }
+        String selectedDate = dayOfMonth+"/"+ month1 +"/"+ year1;
+        fechaLimite = calendario.getTime();
+        dateEd.setText(selectedDate);
     },year,month,day);
 
     datePickDiag.show();
@@ -282,15 +266,12 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
     public String patronFecha(Date fechaSinPattern){
         String pattern = "dd/MM/yyyy";
         SimpleDateFormat format = new SimpleDateFormat(pattern);
-        String fechaConFormato = format.format(fechaSinPattern);
-    return fechaConFormato;
+        return format.format(fechaSinPattern);
     }
     public Date formatoAFecha(String fechaEnString) throws ParseException {
         String pattern = "dd/MM/yyyy";
         SimpleDateFormat format = new SimpleDateFormat(pattern);
-        Date fechaEnDate = format.parse(fechaEnString);
-
-        return fechaEnDate;
+        return format.parse(fechaEnString);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -321,37 +302,27 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
 
                 final ArrayList<Integer> itemsSelected = new ArrayList<>();
                 CharSequence[] cs = valores.toArray(new CharSequence[valores.size()]);
-                builder.setMultiChoiceItems(cs, null, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        if(isChecked){
-                            itemsSelected.add(which);
-                        }else if (itemsSelected.contains(which)){
-                            itemsSelected.remove(Integer.valueOf(which));
-                        }
+                builder.setMultiChoiceItems(cs, null, (dialog, which, isChecked) -> {
+                    if(isChecked){
+                        itemsSelected.add(which);
+                    }else if (itemsSelected.contains(which)){
+                        itemsSelected.remove(Integer.valueOf(which));
                     }
                 });
 
-                builder.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
-                        View confirmationLayout = getLayoutInflater().inflate(R.layout.confirmacion, null);
-                        builder1.setMessage(R.string.confirmacion);
-                        builder1.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                for (int i :itemsSelected){
-                                    valores.remove(i);
-                                    listaTareas.remove(i);
-                                    mAdapter.notifyDataSetChanged();
+                builder.setPositiveButton(R.string.alert_eliminar, (dialog, which) -> {
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+                    builder1.setMessage(R.string.confirmacion);
+                    builder1.setPositiveButton(R.string.alert_eliminar, (dialog1, which1) -> {
+                        for (int i :itemsSelected){
+                            valores.remove(i);
+                            listaTareas.remove(i);
+                            mAdapter.notifyDataSetChanged();
 
-                                }
-                            }
-                        });
-                        builder1.setNegativeButton(R.string.alert_cancelar, null);
-                        builder1.create().show();
-                    }
+                        }
+                    });
+                    builder1.setNegativeButton(R.string.alert_cancelar, null);
+                    builder1.create().show();
                 });
                 builder.setNegativeButton(R.string.alert_cancelar,null);
                 builder.create().show();
