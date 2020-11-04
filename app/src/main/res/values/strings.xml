@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">P1DI</string>
+    <string name="tarea">Tarea</string>
+    <string name="titulo_tarea">Título</string>
+    <string name="limit_date">Fecha límite</string>
+    <string name="hint_titulo">Hint titulo</string>
+    <string name="addTarea">Añadir tarea</string>
+    <string name="positiveButtonTarea">Añadir</string>
+    <string name="negativeButtonTarea">Descartar</string>
+    <string name="modificar">Modificar tarea</string>
+    <string name="positiveButtonModificar">Modificar</string>
+    <string name="negativeButtonModificar">Cancelar</string>
+    <string name="menu_modificar">Modificar</string>
+    <string name="menu_borrar">Borrar</string>
+    <string name="alert_eliminar">Eliminar</string>
+    <string name="alert_cancelar">Cancelar</string>
+    <string name="texto_prueba">Texto prueba</string>
+</resources>
