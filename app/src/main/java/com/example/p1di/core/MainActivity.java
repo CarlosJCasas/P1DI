@@ -90,17 +90,7 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
                 listaPosiciones.add(position);
             }
         }
-
-
-
-
-
-
-
-
-
-
-
+        //Seleccionar varios, ver PMDM 'clear'
 
 
         builder.create().show();
