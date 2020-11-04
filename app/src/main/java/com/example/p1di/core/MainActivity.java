@@ -65,20 +65,18 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
     @Override
     protected void onResume() {
         super.onResume();
+        ArrayList<String> itemList = new ArrayList<>();
+        ArrayList<Integer> listaPosiciones = new ArrayList<>();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View customLayout = getLayoutInflater().inflate(R.layout.borrar_layout, null);
         builder.setView(customLayout);
-        ListView listaDescartes = customLayout.findViewById(R.id.listaDescartados);
-        ArrayList<String> itemList = new ArrayList<>();
-        ArrayAdapter<String> borrarAdapter = new ArrayAdapter<>(this.getApplicationContext(), android.R.layout.simple_list_item_multiple_choice, itemList);
-        listaDescartes.setAdapter(borrarAdapter);
 
 
         for (Tarea tarea : listaTareas){
             Date fechaHoy = null, fechaTarea = null;
-            int position = 0;
-            ArrayList<Integer> listaPosiciones = new ArrayList<>();
+            int position;
+
             try {
                 fechaHoy = formatoAFecha(patronFecha(Calendar.getInstance().getTime()));
                 fechaTarea = formatoAFecha(patronFecha(tarea.getFechaLimite()));
@@ -88,11 +86,44 @@ public class MainActivity extends AppCompatActivity implements MiAdaptadorRecVie
             if (fechaHoy.compareTo(fechaTarea) > 0 || fechaHoy.compareTo(fechaTarea) == 0 ){
                 position = listaTareas.indexOf(tarea);
                 listaPosiciones.add(position);
+                itemList.add(valores.get(position));
             }
         }
-        //Seleccionar varios, ver PMDM 'clear'
 
-
+        ArrayList<Integer> itemsSelected = new ArrayList<>();
+        CharSequence[] cs = itemList.toArray(new CharSequence[itemList.size()]);
+        builder.setMultiChoiceItems(cs, null, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                if(isChecked){
+                    itemsSelected.add(which);
+                }else if (itemsSelected.contains(which)){
+                    itemsSelected.remove(Integer.valueOf(which));
+                }
+            }
+        });
+        builder.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+                View confirmationLayout = getLayoutInflater().inflate(R.layout.confirmacion, null);
+                builder1.setMessage(R.string.confirmacion);
+                builder1.setPositiveButton(R.string.alert_eliminar, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        for (int i :itemsSelected){
+                            valores.remove(i);
+                            listaTareas.remove(i);
+                            itemList.remove(i);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                });
+                builder1.setNegativeButton(R.string.alert_cancelar, null);
+                builder1.create().show();
+            }
+        });
+        builder.setNegativeButton(R.string.alert_cancelar,null);
         builder.create().show();
 
     }
